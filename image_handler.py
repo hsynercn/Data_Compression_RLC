@@ -56,19 +56,19 @@ compression_util = CompressionUtil.CompressionUtil
 compressed_mono_row = compression_util.rle_encode(mono, my_bitmap.width, my_bitmap.height,
                                                   compression_util.RleTravel.ROW,
                                                   compression_util.EncodingType.MONOCHROME)
-print("MONO ROW SIZE:", len(compressed_mono_row))
+print("MONO ROW SIZE:", len(compressed_mono_row)/8)
 
 
 compressed_mono_col = compression_util.rle_encode(mono, my_bitmap.width, my_bitmap.height,
                                                   compression_util.RleTravel.COLUMN,
                                                   compression_util.EncodingType.MONOCHROME)
-print("MONO COLUMN SIZE:", len(compressed_mono_col))
+print("MONO COLUMN SIZE:", len(compressed_mono_col)/8)
 
 
 compressed_mono_zigzag = compression_util.rle_encode(mono, my_bitmap.width, my_bitmap.height,
                                                   compression_util.RleTravel.ZIGZAG,
                                                   compression_util.EncodingType.MONOCHROME)
-print("MONO ZIGZAG SIZE:", len(compressed_mono_zigzag))
+print("MONO ZIGZAG SIZE:", len(compressed_mono_zigzag)/8)
 
 # plt.imshow(gray_4, cmap='gray')
 # plt.show()
@@ -77,18 +77,18 @@ print("MONO ZIGZAG SIZE:", len(compressed_mono_zigzag))
 compressed_gray4_row = compression_util.rle_encode(gray_4, my_bitmap.width, my_bitmap.height,
                                                   compression_util.RleTravel.ROW,
                                                   compression_util.EncodingType.GRAYSCALE_4)
-print("4BIT ROW SIZE:", len(compressed_gray4_row))
+print("4BIT ROW SIZE:", len(compressed_gray4_row)/2)
 
 
 compressed_gray4_col = compression_util.rle_encode(gray_4, my_bitmap.width, my_bitmap.height,
                                                   compression_util.RleTravel.COLUMN,
                                                   compression_util.EncodingType.GRAYSCALE_4)
-print("4BIT COLUMN SIZE:", len(compressed_gray4_col))
+print("4BIT COLUMN SIZE:", len(compressed_gray4_col)/2)
 
 compressed_gray4_zigzag = compression_util.rle_encode(gray_4, my_bitmap.width, my_bitmap.height,
                                                   compression_util.RleTravel.ZIGZAG,
                                                   compression_util.EncodingType.GRAYSCALE_4)
-print("4BIT ZIGZAG SIZE:", len(compressed_gray4_zigzag))
+print("4BIT ZIGZAG SIZE:", len(compressed_gray4_zigzag)/2)
 
 
 compressed_color255_row = compression_util.rle_encode(color_255, my_bitmap.width, my_bitmap.height,
