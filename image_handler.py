@@ -35,7 +35,7 @@ def read_image(dir):
     try:
         file = open(dir, 'rb')
         image = file.read()
-        print('File opened: ', file.name)
+        #print('File opened: ', file.name)
     except IOError:
         print('Can\'t open:' + dir)
     finally:
@@ -43,67 +43,63 @@ def read_image(dir):
     return image
 
 
-dir = ".\\image_samples\\lenna.bmp"
-my_bitmap = parse_24bit_bmp(read_image(dir))
-converter = PixelConverter.PixelConverter
-mono = converter.rgb_to_monochrome(my_bitmap.r, my_bitmap.g, my_bitmap.b, my_bitmap.width, my_bitmap.height)
-gray_4 = converter.rgb_to_4bit_gray(my_bitmap.r, my_bitmap.g, my_bitmap.b, my_bitmap.width, my_bitmap.height)
-color_255 = converter.rgb_to_255_colortable(my_bitmap.r, my_bitmap.g, my_bitmap.b, my_bitmap.width,
-                                            my_bitmap.height)
+def comp_ratio_to_performance(comp_ratio):
+    return (100 * (1 - comp_ratio))//1
 
-compression_util = CompressionUtil.CompressionUtil
+location = ".\\image_samples\\"
 
-compressed_mono_row = compression_util.rle_encode(mono, my_bitmap.width, my_bitmap.height,
-                                                  compression_util.RleTravel.ROW,
-                                                  compression_util.EncodingType.MONOCHROME)
-print("MONO ROW SIZE:", len(compressed_mono_row)/8)
+file_names = ["biber", "lenna", "ucak", "goldhill"]
 
+result_folder = "res/"
 
-compressed_mono_col = compression_util.rle_encode(mono, my_bitmap.width, my_bitmap.height,
-                                                  compression_util.RleTravel.COLUMN,
-                                                  compression_util.EncodingType.MONOCHROME)
-print("MONO COLUMN SIZE:", len(compressed_mono_col)/8)
+for file_name in file_names:
 
+    if not os.path.isdir(result_folder):
+        os.makedirs(result_folder)
 
-compressed_mono_zigzag = compression_util.rle_encode(mono, my_bitmap.width, my_bitmap.height,
-                                                  compression_util.RleTravel.ZIGZAG,
-                                                  compression_util.EncodingType.MONOCHROME)
-print("MONO ZIGZAG SIZE:", len(compressed_mono_zigzag)/8)
+    dir = location + file_name + ".bmp"
+    my_bitmap = parse_24bit_bmp(read_image(dir))
+    converter = PixelConverter.PixelConverter
+    mono = converter.rgb_to_monochrome(my_bitmap.r, my_bitmap.g, my_bitmap.b, my_bitmap.width, my_bitmap.height)
+    gray_4 = converter.rgb_to_4bit_gray(my_bitmap.r, my_bitmap.g, my_bitmap.b, my_bitmap.width, my_bitmap.height)
+    color_255 = converter.rgb_to_255_colortable(my_bitmap.r, my_bitmap.g, my_bitmap.b, my_bitmap.width,
+                                                my_bitmap.height)
 
-# plt.imshow(gray_4, cmap='gray')
-# plt.show()
+    plt.imshow(mono, cmap='gray')
+    plt.savefig(result_folder +file_name + "_mono.png")
+    plt.imshow(gray_4, cmap='gray')
+    plt.savefig(result_folder +file_name + "_gray.png")
+    plt.imshow(color_255, cmap='gray')
+    plt.savefig(result_folder +file_name + "_color.png")
 
+    compression_util = CompressionUtil.CompressionUtil
 
-compressed_gray4_row = compression_util.rle_encode(gray_4, my_bitmap.width, my_bitmap.height,
-                                                  compression_util.RleTravel.ROW,
-                                                  compression_util.EncodingType.GRAYSCALE_4)
-print("4BIT ROW SIZE:", len(compressed_gray4_row)/2)
-
-
-compressed_gray4_col = compression_util.rle_encode(gray_4, my_bitmap.width, my_bitmap.height,
-                                                  compression_util.RleTravel.COLUMN,
-                                                  compression_util.EncodingType.GRAYSCALE_4)
-print("4BIT COLUMN SIZE:", len(compressed_gray4_col)/2)
-
-compressed_gray4_zigzag = compression_util.rle_encode(gray_4, my_bitmap.width, my_bitmap.height,
-                                                  compression_util.RleTravel.ZIGZAG,
-                                                  compression_util.EncodingType.GRAYSCALE_4)
-print("4BIT ZIGZAG SIZE:", len(compressed_gray4_zigzag)/2)
+    data = [mono, gray_4, color_255]
+    data_types = [compression_util.EncodingType.MONOCHROME, compression_util.EncodingType.GRAYSCALE_4,
+                  compression_util.EncodingType.COLORTABLE_256]
+    data_names = ["MONO", "4BIT", "256COLOR"]
 
 
-compressed_color255_row = compression_util.rle_encode(color_255, my_bitmap.width, my_bitmap.height,
-                                                  compression_util.RleTravel.ROW,
-                                                  compression_util.EncodingType.COLORTABLE_256)
-print("256COLOR ROW SIZE:", len(compressed_color255_row))
+    travel = [compression_util.RleTravel.ROW, compression_util.RleTravel.COLUMN, compression_util.RleTravel.ZIGZAG,
+              compression_util.RleTravel.ZIGZAG_SEGMENT]
+
+    travel_names = ["ROW", "COLUMN", "ZIGZAG", "ZIGZAG SEGMENT"]
+
+    print("FILE NAME:", file_name)
+    for i in range(0, len(data)):
+        for j in range(0, len(travel)):
+            compressed = compression_util.rle_encode(data[i], my_bitmap.width, my_bitmap.height, travel[j], data_types[i])
+            if data_types[i] == compression_util.EncodingType.GRAYSCALE_4:
+                comp_ratio = (len(compressed)/2)/(my_bitmap.width * my_bitmap.height)
+                print(data_names[i], travel_names[j], " SIZE:", len(compressed)/2, "COMP RATIO:", comp_ratio, "COMP PER"
+                      , comp_ratio_to_performance(comp_ratio))
+            elif data_types[i] == compression_util.EncodingType.MONOCHROME:
+                comp_ratio = (len(compressed)*8)/(my_bitmap.width * my_bitmap.height)
+                print(data_names[i], travel_names[j], " SIZE:", len(compressed)*8, "COMP RATIO:", comp_ratio, "COMP PER"
+                      , comp_ratio_to_performance(comp_ratio))
+            elif data_types[i] == compression_util.EncodingType.COLORTABLE_256:
+                comp_ratio = len(compressed)/(my_bitmap.width * my_bitmap.height)
+                print(data_names[i], travel_names[j], " SIZE:", len(compressed), "COMP RATIO:", comp_ratio, "COMP PER",
+                      comp_ratio_to_performance(comp_ratio))
 
 
-compressed_color255_col = compression_util.rle_encode(color_255, my_bitmap.width, my_bitmap.height,
-                                                  compression_util.RleTravel.COLUMN,
-                                                  compression_util.EncodingType.COLORTABLE_256)
-print("256COLOR COLUMN SIZE:", len(compressed_color255_col))
-
-
-compressed_color255_zigzag = compression_util.rle_encode(color_255, my_bitmap.width, my_bitmap.height,
-                                                  compression_util.RleTravel.ZIGZAG,
-                                                  compression_util.EncodingType.COLORTABLE_256)
-print("256COLOR ZIGZAG SIZE:", len(compressed_color255_zigzag))

@@ -49,7 +49,19 @@ class Bitmap24:
             self.g.append(rgb[1::3])
             self.b.append(rgb[2::3])
             i += 1
-
+        i = 0
+        height = self.height - 1
+        while i < self.height // 2:
+            temp = self.r[i]
+            self.r[i] = self.r[height - i]
+            self.r[height - i] = temp
+            temp = self.g[i]
+            self.g[i] = self.g[height - i]
+            self.g[height - i] = temp
+            temp = self.b[i]
+            self.b[i] = self.b[height - i]
+            self.b[height - i] = temp
+            i += 1
 
 
 

@@ -34,14 +34,40 @@ class CompressionUtil:
         return frame
 
     @staticmethod
-    def rle_encode(gray4bit_matrix, width, height, travel_type, encoding_type):
+    def rle_encode(matrix, width, height, travel_type, encoding_type):
 
         if travel_type == CompressionUtil.RleTravel.ZIGZAG:
-            result = CompressionUtil.zigzag_sequence(gray4bit_matrix, width, height)
-        elif travel_type == CompressionUtil.RleTravel.ROW:
-            result = CompressionUtil.row_sequence(gray4bit_matrix, width, height)
+            result = CompressionUtil.zigzag_sequence(matrix, width, height)
         elif travel_type == CompressionUtil.RleTravel.COLUMN:
-            result = CompressionUtil.column_sequence(gray4bit_matrix, width, height)
+            result = CompressionUtil.column_sequence(matrix, width, height)
+        elif travel_type == CompressionUtil.RleTravel.ROW:
+            result = CompressionUtil.row_sequence(matrix, width, height)
+        elif travel_type == CompressionUtil.RleTravel.ZIGZAG_SEGMENT:
+            mtr_a = []
+            mtr_b = []
+            mtr_c = []
+            mtr_d = []
+            for i in range(0, width//2):
+                mtr_a.append([])
+                for j in range(0, height//2):
+                    mtr_a[i].append(matrix[i][j])
+            for i in range(0, width - width//2):
+                mtr_b.append([])
+                for j in range(0, height//2):
+                    mtr_b[i].append(matrix[i][j])
+            for i in range(0, width//2):
+                mtr_c.append([])
+                for j in range(0, height - height//2):
+                    mtr_c[i].append(matrix[i][j])
+            for i in range(0, width - width//2):
+                mtr_d.append([])
+                for j in range(0, height - height//2):
+                    mtr_d[i].append(matrix[i][j])
+            result = CompressionUtil.zigzag_sequence(mtr_a, len(mtr_a), len(mtr_a[0]))
+            result += CompressionUtil.zigzag_sequence(mtr_b, len(mtr_b), len(mtr_b[0]))
+            result += CompressionUtil.zigzag_sequence(mtr_c, len(mtr_c), len(mtr_c[0]))
+            result += CompressionUtil.zigzag_sequence(mtr_d, len(mtr_d), len(mtr_d[0]))
+
 
         if encoding_type == CompressionUtil.EncodingType.COLORTABLE_256:
             return CompressionUtil.colortable_encode(result)
@@ -93,8 +119,8 @@ class CompressionUtil:
 
     @staticmethod
     def zigzag_sequence(matrix, width, height):
-        m = width - 1
-        n = height - 1
+        m = height - 1
+        n = width - 1
         result = []
         index = 0
         for i in range(0, m + n + 1):
@@ -121,8 +147,8 @@ class CompressionUtil:
     @staticmethod
     def column_sequence(monochrome_matrix, width, height):
         result = []
-        for i in range(0, height):
-            for j in range(0, width):
+        for i in range(0, width):
+            for j in range(0, height):
                 result.append(monochrome_matrix[j][i])
         return result
 

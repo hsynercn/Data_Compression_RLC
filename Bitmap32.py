@@ -36,20 +36,6 @@ class Bitmap32:
         self.g = []
         self.b = []
         self.alpha = []
-        print("self.type", self.type)
-        print("self.size", self.size)
-        print("self.offset", self.offset)
-        print("self.headerSize", self.headerSize)
-        print("self.width", self.width)
-        print("self.height", self.height)
-        print("self.planes", self.planes)
-        print("self.compression", self.compression)
-        print("self.image_size", self.image_size)
-        print("self.x_resolution", self.x_resolution)
-        print("self.y_resolution", self.y_resolution)
-        print("self.n_colours", self.n_colours)
-        print("self.important_colours", self.important_colours)
-
 
     def parse_image_data(self, byte_array):
         pixel_row_size = self.width * 4
@@ -64,5 +50,19 @@ class Bitmap32:
             self.g.append(rgb[1::4])
             self.b.append(rgb[2::4])
             self.alpha.append(rgb[3::4])
+            i += 1
+
+        i = 0
+        height = self.height - 1
+        while i < self.height // 2:
+            temp = self.r[i]
+            self.r[i] = self.r[height - i]
+            self.r[height - i] = temp
+            temp = self.g[i]
+            self.g[i] = self.g[height - i]
+            self.g[height - i] = temp
+            temp = self.b[i]
+            self.b[i] = self.b[height - i]
+            self.b[height - i] = temp
             i += 1
 
